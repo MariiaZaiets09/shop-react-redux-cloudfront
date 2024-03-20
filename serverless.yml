@@ -19,7 +19,7 @@ plugins:
 
 custom:
   client:
-    bucketName: my-store-app
+    bucketName: mariiazaiets-shop-react-redux-cloudfront-007
     distributionFolder: dist
   s3BucketName: ${self:custom.client.bucketName}
 
@@ -36,14 +36,18 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.s3BucketName}
-        AccessControl: PublicRead
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
         WebsiteConfiguration:
           IndexDocument: index.html
           ErrorDocument: index.html
         # VersioningConfiguration:
         #   Status: Enabled
 
-    ## Specifying the policies to make sure all files inside the Bucket are avaialble to CloudFront
+    ## Specifying the policies to make sure all files inside the Bucket are available to CloudFront
     WebAppS3BucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
@@ -51,16 +55,13 @@ resources:
           Ref: WebAppS3Bucket
         PolicyDocument:
           Statement:
-            - Sid: "AllowCloudFrontAccessIdentity"
-              Effect: Allow
-              Action: s3:GetObject
-              Resource: arn:aws:s3:::${self:custom.s3BucketName}/*
-              Principal:
-                AWS:
-                  Fn::Join:
-                    - " "
-                    - - "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity"
-                      - !Ref OriginAccessIdentity
+            - Sid: "PublicReadGetObject"
+              Effect: "Allow"
+              Principal: "*"
+              Action: "*"
+              Resource:
+                - "arn:aws:s3:::${self:custom.s3BucketName}/*"
+                - "arn:aws:s3:::${self:custom.s3BucketName}"
 
     OriginAccessIdentity:
       Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
