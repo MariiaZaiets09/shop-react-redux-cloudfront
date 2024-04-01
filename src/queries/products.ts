@@ -3,17 +3,17 @@ import API_PATHS from "~/constants/apiPaths";
 import { AvailableProduct } from "~/models/Product";
 import { useQuery, useQueryClient, useMutation } from "react-query";
 import React from "react";
+import {
+  mapToAvailableProducts,
+  ProductsDataInterface,
+} from "~/utils/mapToAvailableProducts";
 
 export function useAvailableProducts() {
-  return useQuery<AvailableProduct[], AxiosError>(
-    "available-products",
-    async () => {
-      const res = await axios.get<AvailableProduct[]>(
-        `${API_PATHS.bff}/product/available`
-      );
-      return res.data;
-    }
-  );
+  return useQuery<AvailableProduct[], AxiosError>("productsData", async () => {
+    const res = await axios.get(`${API_PATHS.products}`);
+    const data = res.data as ProductsDataInterface[];
+    return mapToAvailableProducts(data);
+  });
 }
 
 export function useInvalidateAvailableProducts() {
