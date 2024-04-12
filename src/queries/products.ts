@@ -1,18 +1,13 @@
+import React from "react";
 import axios, { AxiosError } from "axios";
 import API_PATHS from "~/constants/apiPaths";
 import { AvailableProduct } from "~/models/Product";
-import { useQuery, useQueryClient, useMutation } from "react-query";
-import React from "react";
-import {
-  mapToAvailableProducts,
-  ProductsDataInterface,
-} from "~/utils/mapToAvailableProducts";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export function useAvailableProducts() {
   return useQuery<AvailableProduct[], AxiosError>("productsData", async () => {
     const res = await axios.get(`${API_PATHS.products}`);
-    const data = res.data as ProductsDataInterface[];
-    return mapToAvailableProducts(data);
+    return res.data;
   });
 }
 
@@ -48,7 +43,7 @@ export function useRemoveProductCache() {
 
 export function useUpsertAvailableProduct() {
   return useMutation((values: AvailableProduct) =>
-    axios.put<AvailableProduct>(`${API_PATHS.bff}/product`, values, {
+    axios.post<AvailableProduct>(`${API_PATHS.bff}/products`, values, {
       headers: {
         Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
       },
